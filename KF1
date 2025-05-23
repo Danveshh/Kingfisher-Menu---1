@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pritam Bar QR Menu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* --- Basic Styles --- */
+        body {
+            background: #f8f9fa;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .app-container {
+            max-width: 420px;
+            margin: 0 auto;
+            background: #C11B1F;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header, .screen-header {
+            background: #C11B1F;
+            color: white;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .header h1 { margin: 0; font-size: 1.5rem; }
+        .cart-icon { cursor: pointer; font-size: 1.2rem; position: relative; }
+        #cart-count {
+            background: #FFC72C;
+            color: #C11B1F;
+            border-radius: 50%;
+            padding: 2px 7px;
+            font-size: 12px;
+            font-weight: bold;
+            position: absolute;
+            top: -8px; right: -10px;
+        }
+        .footer {
+            background: #FFC72C;
+            color: #C11B1F;
+            text-align: center;
+            padding: 10px;
+            font-weight: bold;
+        }
+        .screen { display: none; }
+        .screen.active { display: block; }
+        .screen-content { background: #fff; padding: 16px; min-height: 80vh; }
+        .back-button {
+            background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; margin-right: 12px;
+        }
+        /* --- Section Filter Bar --- */
+        .section-filter-bar {
+            overflow-x: auto;
+            background: #C11B1F;
+            padding: 8px 0;
+        }
+        .section-filter-scroll {
+            display: flex;
+            gap: 10px;
+            padding: 0 10px;
+        }
+        .section-filter-btn {
+            background: #FFC72C;
+            border: none;
+            border-radius: 18px;
+            padding: 6px 18px;
+            font-weight: bold;
+            color: #C11B1F;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+        .section-filter-btn.active {
+            background: #fff;
+            color: #C11B1F;
+            border: 2px solid #FFC72C;
+        }
+        /* --- Menu List --- */
+        .menu-section {
+            margin-bottom: 24px;
+        }
+        .menu-section .section-title {
+            color: #C11B1F;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+        .menu-list {
+            list-style: none;
+            padding: 0; margin: 0;
+        }
+        .menu-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .menu-item-info { flex: 1; }
+        .menu-item-name { font-weight: 500; color: #333; }
+        .price-controls-container {
+            display: flex; align-items: center; gap: 10px; min-width: 120px;
+        }
+        .item-price { color: #C11B1F; font-weight: bold; min-width: 48px; text-align: right; }
+        .add-to-cart-btn {
+            background: #C11B1F; color: white; border: none; border-radius: 4px;
+            padding: 6px 14px; font-weight: bold; cursor: pointer; font-size: 13px;
+        }
+        .add-to-cart-btn:hover { background: #a01519; }
+        /* --- Alcohol Variant Selector --- */
+        .variant-selector {
+            margin-top: 6px;
+            display: flex;
+            gap: 6px;
+        }
+        .variant-btn {
+            background: #eee;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 2px 10px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #333;
+        }
+        .variant-btn.active {
+            background: #C11B1F;
+            color: #fff;
+            border-color: #C11B1F;
+        }
+        /* --- Cart Styles --- */
+        .cart-item {
+            background: #fff;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .cart-item-details { flex: 1; }
+        .cart-item-name { font-weight: bold; }
+        .cart-item-price { color: #666; font-size: 13px; }
+        .quantity-controls {
+            display: flex; align-items: center; gap: 7px; min-width: 80px; justify-content: center;
+        }
+        .quantity-btn {
+            background: #C11B1F; color: white; border: none; width: 22px; height: 22px;
+            border-radius: 50%; font-weight: bold; font-size: 14px; cursor: pointer;
+        }
+        .cart-total {
+            background: #FFC72C;
+            color: #C11B1F;
+            padding: 14px;
+            border-radius: 7px;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .order-btn {
+            background: #C11B1F; color: #fff; border: none; border-radius: 6px;
+            padding: 12px; width: 100%; font-size: 1rem; font-weight: bold; cursor: pointer;
+        }
+        .empty-cart { color: #C11B1F; text-align: center; padding: 40px 0; }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <!-- Header -->
+    <div class="header">
+        <h1>Pritam Bar</h1>
+        <div class="cart-icon" onclick="showScreen('cart')">
+            🛒 <span id="cart-count">0</span>
+        </div>
+    </div>
+    <!-- Home Screen -->
+    <div id="home-screen" class="screen active">
+        <div class="screen-content" style="background: #C11B1F; color: #fff;">
+            <h2 style="text-align:center;">Welcome to Pritam Bar QR Menu</h2>
+            <div style="display: flex; flex-direction: column; gap: 18px; margin-top: 40px; align-items: center;">
+                <button class="add-to-cart-btn" style="width: 70%;" onclick="showScreen('food-menu')">🍽️ Food Menu</button>
+                <button class="add-to-cart-btn" style="width: 70%;" onclick="showScreen('alcohol')">🥃 Alcohol Menu</button>
+            </div>
+        </div>
+        <div class="footer">Powered by Pritam Bar</div>
+    </div>
+    <!-- Food Menu Screen -->
+    <div id="food-menu-screen" class="screen">
+        <div class="screen-header">
+            <button class="back-button" onclick="showScreen('home')">←</button>
+            <h2 style="flex:1;">Food Menu</h2>
+            <div class="cart-icon" onclick="showScreen('cart')">
+                🛒 <span id="cart-count">0</span>
+            </div>
+        </div>
+        <!-- Section Filter Bar -->
+        <div class="section-filter-bar">
+            <div class="section-filter-scroll">
+                <button class="section-filter-btn active" data-section="all">All</button>
+                <button class="section-filter-btn" data-section="starters">Starters</button>
+                <button class="section-filter-btn" data-section="maincourse">Main Course</button>
+                <button class="section-filter-btn" data-section="breads">Breads</button>
+                <button class="section-filter-btn" data-section="desserts">Desserts</button>
+            </div>
+        </div>
+        <div class="screen-content">
+            <!-- Starters -->
+            <div class="menu-section" data-section="starters">
+                <div class="section-title">Starters</div>
+                <ul class="menu-list">
+                    <li class="menu-list-item">
+                        <div class="menu-item-info">
+                            <div class="menu-item-name">Paneer Tikka</div>
+                        </div>
+                        <div class="price-controls-container">
+                            <div class="item-price">₹280</div>
+                            <div class="item-controls" data-name="Paneer Tikka" data-price="280">
+                                <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="menu-list-item">
+                        <div class="menu-item-info">
+                            <div class="menu-item-name">Chicken Tandoori (Half)</div>
+                        </div>
+                        <div class="price-controls-container">
+                            <div class="item-price">₹220</div>
+                            <div class="item-controls" data-name="Chicken Tandoori (Half)" data-price="220">
+                                <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="menu-list-item">
+                        <div class="menu-item-info">
+                            <div class="menu-item-name">Veg Seekh Kebab</div>
+                        </div>
+                        <div class="price-controls-container">
+                            <div class="item-price">₹200</div>
+                            <div class="item-controls" data-name="Veg Seekh Kebab" data-price="200">
+                                <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <!-- Main Course -->
+            <div class="menu-section" data-section="maincourse">
+                <div class="section-title">Main Course</div>
+                <ul class="menu-list">
+                    <li class="menu-list-item">
+                        <div class="menu-item-info">
+                            <div class="menu-item-name">Butter Chicken (Full)</div>
+                        </div>
+                        <div class="price-controls-container">
+                            <div class="item-price">₹360</div>
+                            <div class="item-controls" data-name="Butter Chicken (Full)" data-price="360">
+                                <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="menu-list-item">
+                        <div class="menu-item-info">
+                            <div class="menu-item-name">Paneer Makhanwala</div>
+                        </div>
+                        <div class="price-controls-container">
+                            <div class="item-price">₹210</div>
+                            <div class="item-controls" data-name="Paneer Makhanwala" data-price="210">
+                                <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <!-- Breads -->
+            <div class="menu-section" data-section="breads">
+                <div class="section-title">Breads</div>
+                <ul class="menu-list">
+                    <li class="menu-list-item">
+                        <div class="menu-item-info">
+                            <div class="menu-item-name">Tandoori Roti</div>
+                        </div>
+                        <div class="price-controls-container">
+                            <div class="item-price">₹25</div>
+                            <div class="item-controls" data-name="Tandoori Roti" data-price="25">
+                                <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="menu-list-item">
+                        <div class="menu-item-info">
+                            <div class="menu-item-name">Garlic Naan</div>
+                        </div>
+                        <div class="price-controls-container">
+                            <div class="item-price">₹80</div>
+                            <div class="item-controls" data-name="Garlic Naan" data-price="80">
+                                <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <!-- Desserts -->
+            <div class="menu-section" data-section="desserts">
+                <div class="section-title">Desserts</div>
+                <ul class="menu-list">
+                    <li class="menu-list-item">
+                        <div class="menu-item-info">
+                            <div class="menu-item-name">Gulab Jamun</div>
+                        </div>
+                        <div class="price-controls-container">
+                            <div class="item-price">₹120</div>
+                            <div class="item-controls" data-name="Gulab Jamun" data-price="120">
+                                <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- Alcohol Menu Screen -->
+    <div id="alcohol-screen" class="screen">
+        <div class="screen-header">
+            <button class="back-button" onclick="showScreen('home')">←</button>
+            <h2 style="flex:1;">Alcohol Menu</h2>
+            <div class="cart-icon" onclick="showScreen('cart')">
+                🛒 <span id="cart-count">0</span>
+            </div>
+        </div>
+        <div class="screen-content">
+            <!-- Example Whisky Section -->
+            <div class="menu-section">
+                <div class="section-title">Standard Scotch Whisky</div>
+                <ul class="menu-list">
+                    <li class="menu-list-item">
+                        <div class="menu-item-info">
+                            <div class="menu-item-name">Black Label</div>
+                            <div class="variant-selector">
+                                <button class="variant-btn active" data-price="1460" data-ml="180">180ml</button>
+                                <button class="variant-btn" data-price="750" data-ml="90">90ml</button>
+                                <button class="variant-btn" data-price="510" data-ml="60">60ml</button>
+                                <button class="variant-btn" data-price="270" data-ml="30">30ml</button>
+                            </div>
+                        </div>
+                        <div class="price-controls-container">
+                            <div class="item-price">₹<span class="dynamic-price">1460</span></div>
+                            <div class="item-controls" data-name="Black Label" data-base-price="1460" data-variant="180">
+                                <button class="add-to-cart-btn" onclick="addAlcoholToCart(this)">Add</button>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="menu-list-item">
+                        <div class="menu-item-info">
+                            <div class="menu-item-name">Red Label</div>
+                            <div class="variant-selector">
+                                <button class="variant-btn active" data-price="960" data-ml="180">180ml</button>
+                                <button class="variant-btn" data-price="500" data-ml="90">90ml</button>
+                                <button class="variant-btn" data-price="360" data-ml="60">60ml</button>
+                                <button class="variant-btn" data-price="185" data-ml="30">30ml</button>
+                            </div>
+                        </div>
+                        <div class="price-controls-container">
+                            <div class="item-price">₹<span class="dynamic-price">960</span></div>
+                            <div class="item-controls" data-name="Red Label" data-base-price="960" data-variant="180">
+                                <button class="add-to-cart-btn" onclick="addAlcoholToCart(this)">Add</button>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <!-- You can add more alcohol sections and items as needed -->
+        </div>
+    </div>
+    <!-- Cart Screen -->
+    <div id="cart-screen" class="screen">
+        <div class="screen-header">
+            <button class="back-button" onclick="showScreen('home')">←</button>
+            <h2 style="flex:1;">Your Cart</h2>
+        </div>
+        <div class="screen-content">
+            <div id="cart-items-container"></div>
+            <div id="empty-cart" class="empty-cart">Your cart is empty.</div>
+            <div id="cart-summary" style="display:none;">
+                <div class="cart-total">Total: ₹<span id="cart-total-amount">0</span></div>
+                <button class="order-btn" onclick="placeOrder()">Place Order</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // --- Section Filtering ---
+    document.querySelectorAll('.section-filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.section-filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const section = btn.getAttribute('data-section');
+            document.querySelectorAll('#food-menu-screen .menu-section').forEach(sec => {
+                if (section === 'all' || sec.getAttribute('data-section') === section) {
+                    sec.style.display = '';
+                } else {
+                    sec.style.display = 'none';
+                }
+            });
+        });
+    });
+
+    // --- Alcohol Variant Selection ---
+    document.querySelectorAll('#alcohol-screen .variant-selector').forEach(selector => {
+        selector.querySelectorAll('.variant-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                selector.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                // Update price display
+                const price = btn.getAttribute('data-price');
+                const ml = btn.getAttribute('data-ml');
+                const parentItem = btn.closest('.menu-list-item');
+                parentItem.querySelector('.dynamic-price').textContent = price;
+                // Update controls data
+                const controls = parentItem.querySelector('.item-controls');
+                controls.setAttribute('data-base-price', price);
+                controls.setAttribute('data-variant', ml);
+            });
+        });
+    });
+
+    // --- Cart Logic ---
+    let cart = [];
+
+    function addToCart(button) {
+        const itemData = button.parentElement;
+        const name = itemData.getAttribute('data-name');
+        const price = parseInt(itemData.getAttribute('data-price'));
+        const existingItem = cart.find(item => item.name === name);
+        if (existingItem) {
+            existingItem.quantity += 1;
+        } else {
+            cart.push({ name, price, quantity: 1 });
+        }
+        updateCartUI();
+        updateCartCount();
+    }
+
+    function addAlcoholToCart(button) {
+        const itemData = button.parentElement;
+        const name = itemData.getAttribute('data-name');
+        const price = parseInt(itemData.getAttribute('data-base-price'));
+        const variant = itemData.getAttribute('data-variant');
+        const displayName = `${name} (${variant}ml)`;
+        const existingItem = cart.find(item => item.name === displayName);
+        if (existingItem) {
+            existingItem.quantity += 1;
+        } else {
+            cart.push({ name: displayName, price, quantity: 1 });
+        }
+        updateCartUI();
+        updateCartCount();
+    }
+
+    function updateCartUI() {
+        const container = document.getElementById('cart-items-container');
+        const emptyCart = document.getElementById('empty-cart');
+        const cartSummary = document.getElementById('cart-summary');
+        if (cart.length === 0) {
+            container.innerHTML = '';
+            emptyCart.style.display = '';
+            cartSummary.style.display = 'none';
+            document.getElementById('cart-total-amount').textContent = 0;
+            return;
+        }
+        emptyCart.style.display = 'none';
+        cartSummary.style.display = '';
+        let html = '';
+        let total = 0;
+        cart.forEach(item => {
+            total += item.price * item.quantity;
+            html += `
+                <div class="cart-item">
+                    <div class="cart-item-details">
+                        <div class="cart-item-name">${item.name}</div>
+                        <div class="cart-item-price">₹${item.price} each</div>
+                    </div>
+                    <div class="quantity-controls">
+                        <button class="quantity-btn" onclick="decreaseQuantity('${item.name.replace(/'/g, "\\'")}')">-</button>
+                        <span>${item.quantity}</span>
+                        <button class="quantity-btn" onclick="increaseQuantity('${item.name.replace(/'/g, "\\'")}')">+</button>
+                    </div>
+                    <div style="margin-left:10px;font-weight:bold;">₹${item.price * item.quantity}</div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+        document.getElementById('cart-total-amount').textContent = total;
+    }
+
+    function increaseQuantity(name) {
+        const item = cart.find(item => item.name === name);
+        if (item) item.quantity += 1;
+        updateCartUI();
+        updateCartCount();
+    }
+
+    function decreaseQuantity(name) {
+        const item = cart.find(item => item.name === name);
+        if (item) {
+            item.quantity -= 1;
+            if (item.quantity <= 0) cart = cart.filter(i => i.name !== name);
+        }
+        updateCartUI();
+        updateCartCount();
+    }
+
+    function updateCartCount() {
+        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+        document.querySelectorAll('#cart-count').forEach(el => el.textContent = totalItems);
+    }
+
+    function placeOrder() {
+        if (cart.length === 0) return;
+        alert('Order placed! Thank you.');
+        cart = [];
+        updateCartUI();
+        updateCartCount();
+        showScreen('home');
+    }
+
+    function showScreen(screen) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screen + '-screen').classList.add('active');
+        if (screen === 'cart') updateCartUI();
+    }
+</script>
+</body>
+</html>
