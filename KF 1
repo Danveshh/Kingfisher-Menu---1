@@ -1,0 +1,1610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kingfisher QR Menu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            background-color: #f8f9fa;
+        }
+        .app-container {
+            max-width: 390px;
+            height: 100vh;
+            margin: 0 auto;
+            background-color: #C11B1F;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background-color: #C11B1F;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+        .screen-content {
+            background-color: #C11B1F;
+            padding: 16px;
+            height: calc(100% - 64px);
+            overflow-y: auto;
+        }
+        .logo-container {
+            width: 40%;
+            text-align: left;
+        }
+        .logo-container img {
+            height: 40px;
+        }
+        .location-container {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+        .location-icon {
+            margin-right: 6px;
+            font-size: 18px;
+        }
+        .alert-box {
+            background-color: #FFC72C;
+            padding: 10px;
+            text-align: center;
+            margin: 0 16px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .content {
+            flex: 1;
+            padding: 0 16px 16px;
+            overflow-y: auto;
+        }
+        .beer-banner {
+            background-color: white;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 24px;
+            cursor: pointer;
+        }
+        .beer-banner img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            margin: 0 auto;
+            border-radius: 4px;
+        }
+        .menu-title {
+            color: white;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+        .menu-item {
+            background-color: white;
+            border: 2px solid #FFC72C;
+            border-radius: 8px;
+            padding: 12px;
+            height: 144px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .menu-item.special {
+            background-color: #FFC72C;
+        }
+        .menu-item-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+            color: #C11B1F;
+        }
+        .menu-item-text {
+            color: #C11B1F;
+            font-weight: 600;
+            text-align: center;
+        }
+        .footer {
+            background-color: #FFC72C;
+            padding: 12px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-top: auto;
+        }
+        .screen {
+            display: none;
+            height: 100%;
+        }
+        .screen.active {
+            display: block;
+        }
+        .screen-header {
+            background-color: #C11B1F;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            color: white;
+        }
+        .back-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            margin-right: 16px;
+            cursor: pointer;
+        }
+        .menu-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            width: 100%;
+        }
+        .menu-section:last-child {
+            margin-bottom: 0;
+        }
+        .section-title {
+            color: #006400;
+            font-weight: bold;
+            font-size: 1.125rem;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+        }
+        .section-banner {
+            width: 100%;
+            height: 64px;
+            background-color: #f8f8f8;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            object-fit: cover;
+        }
+        .menu-list {
+            list-style: none;
+            width: 100%;
+        }
+     .menu-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    width: 100%;
+    padding: 8px 0;
+}
+
+
+.menu-item-info {
+    flex: 1;
+    min-width: 0;
+    padding-right: 10px;
+}
+
+.menu-item-name {
+    font-weight: 500;
+    color: #333;
+    line-height: 1.3;
+    word-wrap: break-word;
+}
+
+.price-controls-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    min-width: 120px;
+}
+
+.item-price {
+    font-weight: 600;
+    color: #C11B1F;
+    font-size: 16px;
+    min-width: 60px;
+    text-align: right;
+}
+
+.item-controls {
+    min-width: 50px;
+    display: flex;
+    justify-content: center;
+}
+        #alcohol-screen .menu-list-item {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+        }
+      .menu-list-item span:first-child {
+    flex: 1;
+    min-width: 60%;
+    max-width: 70%;         
+    word-wrap: break-word;  
+}
+
+        .menu-list-item span:last-child {
+            text-align: right;
+            min-width: 60px;
+        }
+        .menu-list-item:last-child {
+            margin-bottom: 0;
+        }
+        .offer-card {
+            background-color: #FFC72C;
+            border: 2px solid white;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            cursor: pointer;
+        }
+        .offer-card h2 {
+            color: #C11B1F;
+            font-weight: bold;
+            font-size: 1.125rem;
+            margin-bottom: 8px;
+        }
+        .offer-card p {
+            color: #000;
+            margin-bottom: 8px;
+        }
+        .offer-card .claim {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+        .offer-card .claim span {
+            color: #C11B1F;
+            font-weight: 500;
+            margin-right: 4px;
+        }
+        .featured {
+            background-color: #FEF9E7;
+            border-left: 3px solid #FFC72C;
+        }
+
+        /* Cart Specific Styles */
+        .cart-icon {
+            position: relative;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        #cart-count {
+            background-color: #FFC72C;
+            color: #C11B1F;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+            font-weight: bold;
+            min-width: 18px;
+            text-align: center;
+        }
+
+     .add-to-cart-btn {
+    background-color: #C11B1F;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+    white-space: nowrap;
+    min-width: 45px;
+    transition: background-color 0.2s;
+}
+        .add-to-cart-btn:hover {
+            background-color: #a01519;
+        }
+
+.menu-list-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    width: 100%;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+
+      .quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 80px;
+    justify-content: center;
+}
+
+.quantity-btn {
+    background-color: #C11B1F;
+    color: white;
+    border: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.quantity-controls span {
+    min-width: 20px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 14px;
+}
+        .cart-item {
+            background-color: white;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cart-item-details {
+            flex: 1;
+        }
+
+        .cart-item-name {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .cart-item-price {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .cart-total {
+            background-color: #FFC72C;
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cart-total h3 {
+            color: #C11B1F;
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+        }
+
+        .order-btn {
+            background-color: #C11B1F;
+            color: white;
+            border: none;
+            padding: 16px;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 40px 16px;
+            color: white;
+        }
+
+        .empty-cart-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="app-container">
+        <!-- Home Screen -->
+        <div id="home-screen" class="screen active">
+            <div class="header">
+                <div class="logo-container">
+                    <h1>KINGFISHER</h1>
+                </div>
+                
+                <div class="cart-icon" onclick="showScreen('cart')">
+                    🛒 <span id="cart-count">0</span>
+                </div>
+            </div>
+            <div class="content">
+                <div class="alert-box">
+                    GOOD TIMES ALERT!
+                </div>
+                <div class="beer-banner" onclick="showScreen('offers')">
+                    <img src="images/logo.png" alt="Logo">
+                </div>
+                <h2 class="menu-title">EXPLORE OUR DIGITAL MENU!</h2>
+                <div class="menu-grid">
+                    <div class="menu-item" onclick="showScreen('food-menu')">
+                        <div class="menu-item-icon">🍽️</div>
+                        <div class="menu-item-text">Food Menu</div>
+                    </div>
+                    <div class="menu-item" onclick="showScreen('alcohol')">
+                        <div class="menu-item-icon">🥃</div>
+                        <div class="menu-item-text">Alcohol</div>
+                    </div>
+                    <div class="menu-item" onclick="showScreen('beers')">
+                        <div class="menu-item-icon">🍺</div>
+                        <div class="menu-item-text">Beers & Beverages</div>
+                    </div>
+                    <div class="menu-item special" onclick="showScreen('offers')">
+                        <div class="menu-item-icon">🎁</div>
+                        <div class="menu-item-text">Offer Zone</div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">
+                Powered by Kingfisher
+            </div>
+        </div>
+
+        <!-- Beers Screen -->
+        <div id="beers-screen" class="screen">
+            <div class="screen-header">
+                <button class="back-button" onclick="showScreen('home')">←</button>
+                <h1>Beers & Beverages</h1>
+                <div class="cart-icon" onclick="showScreen('cart')" style="margin-left: auto;">
+                    🛒 <span id="cart-count">0</span>
+                </div>
+            </div>
+            <div class="screen-content">
+                <!-- Premium Beers Section -->
+                <div class="menu-section">
+                    <h2 class="section-title">TRENDING NOW</h2>
+                    <ul class="menu-list">
+                        <li class="menu-list-item featured">
+    <div class="menu-item-info">
+        <div class="menu-item-name">King Fisher Premium</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹340</div>
+        <div class="item-controls" data-name="King Fisher Premium" data-price="340">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item featured">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Heineken</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹380</div>
+        <div class="item-controls" data-name="Heineken" data-price="380">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item featured">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Amstel</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹360</div>
+        <div class="item-controls" data-name="Amstel" data-price="360">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+                    </ul>
+                </div>
+                <div class="menu-section">
+                    <h2 class="section-title">MILD BEER</h2>
+                    <ul class="menu-list">
+                        <li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">K.F. Draught (Mug)</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹125</div>
+        <div class="item-controls" data-name="K.F. Draught (Mug)" data-price="125">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">K.F. Draught (Pitcher)</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹550</div>
+        <div class="item-controls" data-name="K.F. Draught (Pitcher)" data-price="550">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Tuborg/King Fisher</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹290</div>
+        <div class="item-controls" data-name="Tuborg/King Fisher" data-price="290">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Budweiser</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹340</div>
+        <div class="item-controls" data-name="Budweiser" data-price="340">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">L.P. Mild</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹250</div>
+        <div class="item-controls" data-name="L.P. Mild" data-price="250">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Carlsberg/King Fisher Ultra</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹340</div>
+        <div class="item-controls" data-name="Carlsberg/King Fisher Ultra" data-price="340">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">King Fisher Can</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹180</div>
+        <div class="item-controls" data-name="King Fisher Can" data-price="180">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Bira White (Pint)</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹250</div>
+        <div class="item-controls" data-name="Bira White (Pint)" data-price="250">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Bira White</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹360</div>
+        <div class="item-controls" data-name="Bira White" data-price="360">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Corona (Pint)</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹290</div>
+        <div class="item-controls" data-name="Corona (Pint)" data-price="290">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Hoegaarden (Pint)</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹290</div>
+        <div class="item-controls" data-name="Hoegaarden (Pint)" data-price="290">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Bacardi Breezer</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹250</div>
+        <div class="item-controls" data-name="Bacardi Breezer" data-price="250">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+                    </ul>
+                </div>
+                <div class="menu-section">
+                    <h2 class="section-title">STRONG BEER</h2>
+                    <ul class="menu-list">
+                       <li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">King Fisher</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹290</div>
+        <div class="item-controls" data-name="King Fisher" data-price="290">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">King Fisher Can</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹170</div>
+        <div class="item-controls" data-name="King Fisher Can Strong" data-price="170">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">L/P Strong</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹270</div>
+        <div class="item-controls" data-name="L/P Strong" data-price="270">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Budweiser (Magnum)</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹360</div>
+        <div class="item-controls" data-name="Budweiser (Magnum)" data-price="360">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Tuborg</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹290</div>
+        <div class="item-controls" data-name="Tuborg Strong" data-price="290">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">K F Ultra Max</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹340</div>
+        <div class="item-controls" data-name="K F Ultra Max" data-price="340">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Elephant</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹360</div>
+        <div class="item-controls" data-name="Elephant" data-price="360">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Tuborg Can (500 ml)</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹230</div>
+        <div class="item-controls" data-name="Tuborg Can (500 ml)" data-price="230">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">KF ULTRAMA (PITCHER)</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹650</div>
+        <div class="item-controls" data-name="KF ULTRAMA (PITCHER)" data-price="650">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">KF ULTRAMAX (MUG)</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹150</div>
+        <div class="item-controls" data-name="KF ULTRAMAX (MUG)" data-price="150">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+                    </ul>
+                </div>
+                <div class="menu-section">
+                    <h2 class="section-title">COLD DRINKS</h2>
+                    <ul class="menu-list">
+                        <li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Coke/Sprite/Fanta</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹100</div>
+        <div class="item-controls" data-name="Coke/Sprite/Fanta" data-price="100">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Fresh Lime Soda</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹150</div>
+        <div class="item-controls" data-name="Fresh Lime Soda" data-price="150">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Mineral Water</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹50</div>
+        <div class="item-controls" data-name="Mineral Water" data-price="50">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+        <li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Red Bull</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹220</div>
+        <div class="item-controls" data-name="Red Bull" data-price="220">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Cranberry Juice</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹180</div>
+        <div class="item-controls" data-name="Cranberry Juice" data-price="180">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Iced Tea</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹120</div>
+        <div class="item-controls" data-name="Iced Tea" data-price="120">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Food Menu Screen -->
+        <div id="food-menu-screen" class="screen">
+            <div class="screen-header">
+                <button class="back-button" onclick="showScreen('home')">←</button>
+                <h1>Food Menu</h1>
+                <div class="cart-icon" onclick="showScreen('cart')" style="margin-left: auto;">
+                    🛒 <span id="cart-count">0</span>
+                </div>
+            </div>
+            <div class="screen-content">
+                <div class="menu-section">
+                    <h2 class="section-title">STARTERS</h2>
+                    <ul class="menu-list">
+                        <li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Paneer Tikka <small>(goes well with Amstel Grande)</small></div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹350</div>
+        <div class="item-controls" data-name="Paneer Tikka" data-price="350">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Chicken 65 <small>(goes well with KF Ultra Max)</small></div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹400</div>
+        <div class="item-controls" data-name="Chicken 65" data-price="400">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Masala Papad</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹120</div>
+        <div class="item-controls" data-name="Masala Papad" data-price="120">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Gobi Manchurian</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹280</div>
+        <div class="item-controls" data-name="Gobi Manchurian" data-price="280">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Chilli Chicken</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹380</div>
+        <div class="item-controls" data-name="Chilli Chicken" data-price="380">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Fish Fingers</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹420</div>
+        <div class="item-controls" data-name="Fish Fingers" data-price="420">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+                    </ul>
+                </div>
+                <div class="menu-section">
+                    <h2 class="section-title">MAIN COURSE</h2>
+                    <ul class="menu-list">
+                       <li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Butter Chicken</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹450</div>
+        <div class="item-controls" data-name="Butter Chicken" data-price="450">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Paneer Butter Masala</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹380</div>
+        <div class="item-controls" data-name="Paneer Butter Masala" data-price="380">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Biryani (Veg)</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹350</div>
+        <div class="item-controls" data-name="Biryani (Veg)" data-price="350">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Biryani (Non-Veg)</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹450</div>
+        <div class="item-controls" data-name="Biryani (Non-Veg)" data-price="450">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Dal Makhani</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹320</div>
+        <div class="item-controls" data-name="Dal Makhani" data-price="320">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Chicken Tikka Masala</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹420</div>
+        <div class="item-controls" data-name="Chicken Tikka Masala" data-price="420">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Fish Curry</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹480</div>
+        <div class="item-controls" data-name="Fish Curry" data-price="480">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+                    </ul>
+                </div>
+                <div class="menu-section">
+                    <h2 class="section-title">BREADS</h2>
+                    <ul class="menu-list">
+                       <li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Butter Naan</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹80</div>
+        <div class="item-controls" data-name="Butter Naan" data-price="80">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Garlic Naan</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹90</div>
+        <div class="item-controls" data-name="Garlic Naan" data-price="90">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Plain Roti</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹60</div>
+        <div class="item-controls" data-name="Plain Roti" data-price="60">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Lachha Paratha</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹90</div>
+        <div class="item-controls" data-name="Lachha Paratha" data-price="90">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+                    </ul>
+                </div>
+                <div class="menu-section">
+                    <h2 class="section-title">DESSERTS</h2>
+                    <ul class="menu-list">
+                      <li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Gulab Jamun</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹200</div>
+        <div class="item-controls" data-name="Gulab Jamun" data-price="200">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Rasmalai</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹250</div>
+        <div class="item-controls" data-name="Rasmalai" data-price="250">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Ice Cream</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹180</div>
+        <div class="item-controls" data-name="Ice Cream" data-price="180">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Chocolate Brownie</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹220</div>
+        <div class="item-controls" data-name="Chocolate Brownie" data-price="220">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Alcohol Screen -->
+        <div id="alcohol-screen" class="screen">
+            <div class="screen-header">
+                <button class="back-button" onclick="showScreen('home')">←</button>
+                <h1>Alcohol Menu</h1>
+                <div class="cart-icon" onclick="showScreen('cart')" style="margin-left: auto;">
+                    🛒 <span id="cart-count">0</span>
+                </div>
+            </div>
+            <div class="screen-content">
+                <div class="menu-section">
+                    <h2 class="section-title">WHISKY</h2>
+                    <ul class="menu-list">
+                        <li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Blenders Pride (30ml)</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹250</div>
+        <div class="item-controls" data-name="Blenders Pride (30ml)" data-price="250">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Royal Stag (30ml)</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹200</div>
+        <div class="item-controls" data-name="Royal Stag (30ml)" data-price="200">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Johnnie Walker (30ml)</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹400</div>
+        <div class="item-controls" data-name="Johnnie Walker (30ml)" data-price="400">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Black Dog (30ml)</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹350</div>
+        <div class="item-controls" data-name="Black Dog (30ml)" data-price="350">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Jack Daniel's (30ml)</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹450</div>
+        <div class="item-controls" data-name="Jack Daniel's (30ml)" data-price="450">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+                    </ul>
+                </div>
+                <div class="menu-section">
+                    <h2 class="section-title">VODKA</h2>
+                    <ul class="menu-list">
+                        <li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Smirnoff (30ml)</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹220</div>
+        <div class="item-controls" data-name="Smirnoff (30ml)" data-price="220">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Magic Moments (30ml)</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹180</div>
+        <div class="item-controls" data-name="Magic Moments (30ml)" data-price="180">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Absolut (30ml)</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹320</div>
+        <div class="item-controls" data-name="Absolut (30ml)" data-price="320">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Grey Goose (30ml)</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹450</div>
+        <div class="item-controls" data-name="Grey Goose (30ml)" data-price="450">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+                    </ul>
+                </div>
+                <div class="menu-section">
+                    <h2 class="section-title">RUM</h2>
+                    <ul class="menu-list">
+                        <li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Old Monk (30ml)</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹180</div>
+        <div class="item-controls" data-name="Old Monk (30ml)" data-price="180">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Bacardi (30ml)</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹250</div>
+        <div class="item-controls" data-name="Bacardi (30ml)" data-price="250">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Captain Morgan (30ml)</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹280</div>
+        <div class="item-controls" data-name="Captain Morgan (30ml)" data-price="280">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+                    </ul>
+                </div>
+                <div class="menu-section">
+                    <h2 class="section-title">BRANDY</h2>
+                    <ul class="menu-list">
+                        <li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Honeybee (30ml)</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹200</div>
+        <div class="item-controls" data-name="Honeybee (30ml)" data-price="200">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Mansion House (30ml)</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹220</div>
+        <div class="item-controls" data-name="Mansion House (30ml)" data-price="220">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+                    </ul>
+                </div>
+                <div class="menu-section">
+                    <h2 class="section-title">WINE</h2>
+                    <ul class="menu-list">
+                        <li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Sula (Shiraz) 375 ML</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹685</div>
+        <div class="item-controls" data-name="Sula (Shiraz) 375 ML" data-price="685">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Port Wine (Red) 375 ML</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹265</div>
+        <div class="item-controls" data-name="Port Wine (Red) 375 ML" data-price="265">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+<li class="menu-list-item">
+    <div class="menu-item-info">
+        <div class="menu-item-name">Samara (Red) 375 ML</div>
+    </div>
+    <div class="price-controls-container">
+        <div class="item-price">₹320</div>
+        <div class="item-controls" data-name="Samara (Red) 375 ML" data-price="320">
+            <button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>
+        </div>
+    </div>
+</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Cart Screen -->
+        <div id="cart-screen" class="screen">
+            <div class="screen-header">
+                <button class="back-button" onclick="showScreen('home')">←</button>
+                <h1>Your Cart</h1>
+            </div>
+            <div class="screen-content">
+                <div id="cart-items-container">
+                    <!-- Cart items will be populated here -->
+                </div>
+                <div id="empty-cart" class="empty-cart">
+                    <div class="empty-cart-icon">🛒</div>
+                    <h3>Your cart is empty</h3>
+                    <p>Add some delicious items to get started!</p>
+                </div>
+                <div id="cart-summary" style="display: none;">
+                    <div class="cart-total">
+                        <h3>Total: ₹<span id="cart-total-amount">0</span></h3>
+                        <p style="color: #666; font-size: 14px;">Inclusive of all taxes</p>
+                    </div>
+                    <button class="order-btn" onclick="placeOrder()">Place Order</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Offers Screen -->
+        <div id="offers-screen" class="screen">
+            <div class="screen-header">
+                <button class="back-button" onclick="showScreen('home')">←</button>
+                <h1>Offer Zone</h1>
+                <div class="cart-icon" onclick="showScreen('cart')" style="margin-left: auto;">
+                    🛒 <span id="cart-count">0</span>
+                </div>
+            </div>
+            <div class="screen-content">
+                <!-- Offers List View -->
+                <div id="offers-list">
+                    <h2 class="menu-title" style="margin-top: 10px; text-align: left; color: #FFC72C;">TRENDING OFFERS</h2>
+                    <div class="offer-card" onclick="showOfferDetails('HAPPY HOUR')">
+                        <h2>Happy Hour Special</h2>
+                        <p>Buy 1 Get 1 on all Kingfisher Beers!</p>
+                        <p style="font-size: 0.875rem;">Valid from 4 PM to 7 PM, Monday to Thursday</p>
+                        <div class="claim">
+                            <span>Claim now</span>
+                            <span>→</span>
+                        </div>
+                    </div>
+                    <div class="offer-card" onclick="showOfferDetails('KF WEEKDAY SPECIAL')">
+                        <h2>KF Weekday Special</h2>
+                        <p>30% off on KF Premium & Ultra Max!</p>
+                        <p style="font-size: 0.875rem;">Valid Monday to Wednesday, all day</p>
+                        <div class="claim">
+                            <span>Claim now</span>
+                            <span>→</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Offer Details View -->
+                <div id="offer-details" style="display: none;">
+                    <div class="menu-section">
+                        <div style="text-align: center; padding: 20px;">
+                            <div style="font-size: 64px; margin-bottom: 16px;">🎉</div>
+                            <h2 style="color: #FFC72C; margin-bottom: 16px;" id="offer-title">Congratulations!</h2>
+                            <p style="color: white; margin-bottom: 20px;" id="offer-description">Your offer has been activated</p>
+                            
+                            <div style="background-color: #FFC72C; border: 2px dashed #C11B1F; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
+                                <p style="color: #666; font-size: 0.875rem; margin-bottom: 8px;">Your Offer Code</p>
+                                <p style="color: #C11B1F; font-size: 2rem; font-weight: bold; margin-bottom: 8px;">KFPILOT</p>
+                                <p style="color: #666; font-size: 0.875rem;">Show this code to your server</p>
+                            </div>
+                            
+                            <button class="form-button" onclick="applyOffer()" style="margin-bottom: 10px;">Apply Offer</button>
+                            <button class="form-button" onclick="backToOffers()" style="background-color: #666;">Back to Offers</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let cart = [];
+
+        // Cart functionality
+        function addToCart(button) {
+            const itemData = button.parentElement;
+            const name = itemData.dataset.name;
+            const price = parseInt(itemData.dataset.price);
+            
+            const existingItem = cart.find(item => item.name === name);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({
+                    name: name,
+                    price: price,
+                    quantity: 1
+                });
+            }
+            
+            updateCartUI(button);
+            updateCartCount();
+        }
+
+        function updateCartUI(button) {
+            const itemData = button.parentElement;
+            const name = itemData.dataset.name;
+            const item = cart.find(item => item.name === name);
+            
+            if (item && item.quantity > 0) {
+                itemData.innerHTML = `
+                    <div class="quantity-controls">
+                        <button class="quantity-btn" onclick="decreaseQuantity('${name}')">-</button>
+                        <span>${item.quantity}</span>
+                        <button class="quantity-btn" onclick="increaseQuantity('${name}')">+</button>
+                    </div>
+                `;
+            }
+        }
+
+        function increaseQuantity(itemName) {
+            const item = cart.find(item => item.name === itemName);
+            if (item) {
+                item.quantity += 1;
+                updateAllItemControls();
+                updateCartCount();
+            }
+        }
+
+        function decreaseQuantity(itemName) {
+            const item = cart.find(item => item.name === itemName);
+            if (item) {
+                item.quantity -= 1;
+                if (item.quantity <= 0) {
+                    cart = cart.filter(cartItem => cartItem.name !== itemName);
+                }
+                updateAllItemControls();
+                updateCartCount();
+            }
+        }
+
+        function updateAllItemControls() {
+            const allControls = document.querySelectorAll('.item-controls');
+            allControls.forEach(control => {
+                const name = control.dataset.name;
+                const item = cart.find(item => item.name === name);
+                
+                if (item && item.quantity > 0) {
+                    control.innerHTML = `
+                        <div class="quantity-controls">
+                            <button class="quantity-btn" onclick="decreaseQuantity('${name}')">-</button>
+                            <span>${item.quantity}</span>
+                            <button class="quantity-btn" onclick="increaseQuantity('${name}')">+</button>
+                        </div>
+                    `;
+                } else {
+                    control.innerHTML = `<button class="add-to-cart-btn" onclick="addToCart(this)">Add</button>`;
+                }
+            });
+        }
+
+        function updateCartCount() {
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const cartCountElements = document.querySelectorAll('#cart-count');
+            cartCountElements.forEach(element => {
+                element.textContent = totalItems;
+            });
+            
+            if (document.getElementById('cart-screen').classList.contains('active')) {
+                displayCartItems();
+            }
+        }
+
+        function displayCartItems() {
+            const container = document.getElementById('cart-items-container');
+            const emptyCart = document.getElementById('empty-cart');
+            const cartSummary = document.getElementById('cart-summary');
+            
+            if (cart.length === 0) {
+                container.innerHTML = '';
+                emptyCart.style.display = 'block';
+                cartSummary.style.display = 'none';
+                return;
+            }
+            
+            emptyCart.style.display = 'none';
+            cartSummary.style.display = 'block';
+            
+            let cartHTML = '';
+            let total = 0;
+            
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                
+                cartHTML += `
+                    <div class="cart-item">
+                        <div class="cart-item-details">
+                            <div class="cart-item-name">${item.name}</div>
+                            <div class="cart-item-price">₹${item.price} each</div>
+                        </div>
+                        <div class="quantity-controls">
+                            <button class="quantity-btn" onclick="decreaseQuantity('${item.name}')">-</button>
+                            <span>${item.quantity}</span>
+                            <button class="quantity-btn" onclick="increaseQuantity('${item.name}')">+</button>
+                        </div>
+                        <div style="margin-left: 10px; font-weight: bold;">
+                            ₹${itemTotal}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = cartHTML;
+            document.getElementById('cart-total-amount').textContent = total;
+        }
+
+        function placeOrder() {
+            if (cart.length === 0) return;
+            
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            alert(`Order placed successfully!\n\nTotal: ₹${total}\n\nYour order will be prepared shortly. Thank you!`);
+            
+            cart = [];
+            updateCartCount();
+            showScreen('home');
+        }
+        
+        function showScreen(screenId) {
+            // Hide all screens
+            const screens = document.querySelectorAll('.screen');
+            screens.forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            // Show the selected screen
+            if (screenId === 'home') {
+                document.getElementById('home-screen').classList.add('active');
+            } else if (screenId === 'cart') {
+                document.getElementById('cart-screen').classList.add('active');
+                displayCartItems();
+            } else {
+                document.getElementById(screenId + '-screen').classList.add('active');
+            }
+        }
+
+        function showOfferDetails(offerName) {
+            document.getElementById('offers-list').style.display = 'none';
+            document.getElementById('offer-details').style.display = 'block';
+            
+            // Update the offer title and description
+            const offerTitles = {
+                'HAPPY HOUR': 'Happy Hour Special Activated!',
+                'KF WEEKDAY SPECIAL': 'KF Weekday Special Activated!'
+            };
+            
+            const offerDescriptions = {
+                'HAPPY HOUR': 'Buy 1 Get 1 on all Kingfisher Beers!',
+                'KF WEEKDAY SPECIAL': '30% off on KF Premium & Ultra Max!'
+            };
+            
+            document.getElementById('offer-title').textContent = offerTitles[offerName] || 'Offer Activated!';
+            document.getElementById('offer-description').textContent = offerDescriptions[offerName] || 'Your offer is ready to use!';
+        }
+
+        function applyOffer() {
+            alert('Offer applied successfully!\n\nYour KFPILOT code is now active.\nShow this to your waiter when placing your order.');
+            showScreen('home');
+        }
+
+        function backToOffers() {
+            document.getElementById('offers-list').style.display = 'block';
+            document.getElementById('offer-details').style.display = 'none';
+        }
+
+        function showOfferCode(offerName) {
+            alert(`Congratulations!\n\nYour offer: ${offerName}\nOffer Code: KF PILOT\n\nShow this code to your waiter to redeem your offer.`);
+        }
+    </script>
+</body>
+</html>
